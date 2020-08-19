@@ -20,7 +20,18 @@ Finally, the distinguishing feature of our model is this: every experiment creat
 
 \subsection{Model}
 
-There are N units (individuals, firms, locations) connected on an undirected, unweighted graph. Denote each unit on the graph by $\{1, \dots, N \}$. The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$.
+There are N units (individuals, firms, locations) connected on an undirected, unweighted graph. Denote each unit on the graph by $\{1, \dots, N \}$. The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$. The experimenter's objective depends on the observed responses of the nodes to the treatment regime, denoted $\{Y_1 , \dots, Y_n\}$ with $Y \in \mathbb{R}$. Let $w_i$ denote the treatment assignment for node $i$, with $w_i \in \{0,1\}$. \\
+
+Each node's outcome depends on their characteristics, the treatment they receive and the exposure to the treatment through their neighbors. $Y$ is assumed to be a linear function of the unit characteristics and the treatment regime. \\
+
+Define the exposure for node $i$ as $e_i$, which is (for simplicity) assumed to be: 
+$$e_i = \frac { \sum_{j \leq N}  \mathbf{1}(j \in nhbd(i)) w_j}{ \sum_{j \leq N} \mathbf{1}(j \in nhbd(i)) }$$\\
+
+We assume the response function takes the following form:
+
+$$Y_i( w_i, e_i) = \beta^T x_i + \Gamma^T x_i e_i + \epsilon_i,$$
+
+where $\beta, \Gamma \in \mathbb{R}^k$.
 
 
 
