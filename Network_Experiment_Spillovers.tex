@@ -10,5 +10,18 @@
 \begin{document}
 \maketitle
 
+\section{Introduction}
+
+There is a decision maker conducting experiments on a network environment. An 'experiment' in the context of our model is treating a node in the network. Each node responds to the treatment differently, depending on their (observable) characteristics.\\
+
+The decision maker's goal is learning the optimal treatment allocation over the network by sequentially experimenting on different nodes. Because of the network setting, treating one node creates spillovers on neighboring nodes.\\
+
+Finally, the distinguishing feature of our model is this: every experiment creates negative externalities on previous experiments. We model this as a cost for contaminating the treatment regime decided by a previously run experiment.\\
+
+\subsection{Model}
+
+There are N units (individuals, firms, locations) connected on an undirected, unweighted graph. Denote each unit on the graph by $\{1, \dots, N \}$. The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$.
+
+
 
 \end{document}
