@@ -14,24 +14,38 @@
 
 There is a decision maker conducting experiments on a network environment. An 'experiment' in the context of our model is treating a node in the network. Each node responds to the treatment differently, depending on their (observable) characteristics.\\
 
-The decision maker's goal is learning the optimal treatment allocation over the network by sequentially experimenting on different nodes. Because of the network setting, treating one node creates spillovers on neighboring nodes.\\
+The decision maker's goal is learning the optimal treatment allocation over the network by sequentially conducting local experiments on different nodes. Because of the network setting, treating one node creates spillovers on neighboring nodes.\\
 
 Finally, the distinguishing feature of our model is this: every experiment creates negative externalities on previous experiments. We model this as a cost for contaminating the treatment regime decided by a previously run experiment.\\
 
 \subsection{Model}
 
-There are N units (individuals, firms, locations) connected on an undirected, unweighted graph. Denote each unit on the graph by $\{1, \dots, N \}$. The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$. The experimenter's objective depends on the observed responses of the nodes to the treatment regime, denoted $\{Y_1 , \dots, Y_n\}$ with $Y \in \mathbb{R}$. Let $w_i$ denote the treatment assignment for node $i$, with $w_i \in \{0,1\}$. \\
+There are N units (individuals, firms, locations) connected on an undirected, unweighted graph. Denote each unit on the graph by $i \in \{1, \dots, N \}$. \\
+
+The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$. The experimenter's objective depends on the responses of the nodes to the treatment regime, denoted $\{Y_1 , \dots, Y_N\}$ with $Y \in \mathbb{R}$. The decision maker can run experiments sequentially, at time periods $t \in \{1, \dots , T\}$. Let $w_{it}$ denote the treatment assignment for node $i$ during the period of experimentation $t$, with $w_{it} \in \{0,1\}$, and denote the vector of treatment assignments at time $t$ by $w_t = [w_{1t}, \dots , w_{Nt}] \in \{0,1\}^N$. We assume that the experimentation is local, in the sense that every period, only one node can be treated. Thus for all time periods $t$, $\sum_{i \leq N} w_{it} = 1$.\\
 
 Each node's outcome depends on their characteristics, the treatment they receive and the exposure to the treatment through their neighbors. $Y$ is assumed to be a linear function of the unit characteristics and the treatment regime. \\
 
-Define the exposure for node $i$ as $e_i$, which is (for simplicity) assumed to be: 
-$$e_i = \frac { \sum_{j \leq N}  \mathbf{1}(j \in nhbd(i)) w_j}{ \sum_{j \leq N} \mathbf{1}(j \in nhbd(i)) }$$\\
+Define the exposure for node $i$ at period $t$ as $e_{it}$, which is (for simplicity) assumed to be: 
+$$e_{it} = \frac { \sum_{j \leq N}  \mathbf{1}(j \in nhbd(i)) w_{jt}}{ \sum_{j \leq N} \mathbf{1}(j \in nhbd(i)) }$$\\
 
-We assume the response function takes the following form:
+We assume a linear response function taking the following form:
 
-$$Y_i( w_i, e_i) = \beta^T x_i + \Gamma^T x_i e_i + \epsilon_i,$$
+$$Y_{it}( w_{it}, e_{it}) = \beta^T x_i + \Gamma^T x_i e_{it} + \epsilon_i,$$
 
-where $\beta, \Gamma \in \mathbb{R}^k$.
+where $\beta, \Gamma \in \mathbb{R}^k$, and for all nodes $i$, $\epsilon_i \sim N(0, \sigma^2)$.\\
+
+At every period $t$, the DM's experiment creates a cost, because it interacts with a previous experimenter's treatment allocation. We assume that the cost is proportional to the number of units exposed to the treatment, and once a unit is exposed, future exposures of that unit do not increase the cost any further. Define the total cost of experimentation at period $t$ by:
+
+$$c_t = c \sum_{i \leq N} \mathbf{1}\left( e_{it} > 0 \mbox{ and } e_{is}=0,  \forall s<t \right) ,$$
+
+and the total cost at the end of the experimentation period by:\\
+
+$$c= \sum_{t \leq T} c_t  $$
+
+The decision maker has a prior over the value of the vector $\Gamma$ and updates their beliefs through sequential experimentation. The DM's goal is to choose a treatment assignment policy over the network based on the value of $\Gamma$. Denote the final treatment assignment for node $i$ by $w_i$, dropping the time subscript. We denote a policy by $\pi(\Gamma)$, where $\pi(\Gamma)=[w_1, \dots , w_N] \in \{0,1\}^N$.\\
+
+We define the decision maker's optimization problem as follows:
 
 
 
