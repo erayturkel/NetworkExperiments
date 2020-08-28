@@ -47,15 +47,59 @@ $$ C= \sum_{t \leq T} c_t  .$$
 
 We define the value of a policy as follows:
 
-$$V_\pi(\Gamma)=\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty$$
+$$V(\pi)=\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty(\pi)$$
 
 where $e_i(\pi)$ denotes the exposure function at the last period, induced by the treatment allocation under policy $\pi$, and $c_\infty$ is the cost associated with the final treatment allocation $\pi(\Gamma)$. \\
 
-The DM does not observe the vector $\Gamma$ but has an imperfect estimate of it learned through sequential experimentation, which we will call $\hat \Gamma$. We then formulate the DM's optimization problem as minimizing the regret compared to the baseline in which the coefficient $\Gamma$ is known. \\
+The DM does not observe the vector $\Gamma$ but has an imperfect estimate of it learned through sequential experimentation, which we will call $\hat \Gamma$. We then formulate the DM's optimization problem:\\
 
-$$ Min_{\pi} E \left( V_\pi (\Gamma) - V_\pi (\hat \Gamma) \right)^2 \text{ subject to } C\leq \bar C $$
+$$Max_{\hat \pi} : E(\sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi) - c_\infty(\hat \pi) ).$$
+
+This ends up being equivalent to this minimization (the equivalence to be clarified later):
 
 
-$$ Min_{\pi} E \left( \sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty - \sum_{i \leq N} \hat \Gamma^T x_i e_i(\pi) + \hat c_\infty \right) \text{ subject to } C\leq \bar C $$
+$$ Min_{\hat \pi} E \left( Sup_\pi \left(\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty(\pi) \right) - \sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi) + c_\infty(\hat \pi) \right) $$
 
+OR (depending on how $\hat \Gamma \rightarrow \Gamma$).
+
+$$ Min_{\pi} E \left( Sup_\pi \left(\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty \right) - \sum_{i \leq N}  \Gamma^T x_i e_i(\pi) + \hat c_\infty \right) $$
+
+
+\subsection{Last Period Deployment Problem}
+
+Let $X_{K \times N}$ denote the matrix of observed covariates for the nodes. Let $\hat \Gamma _{1 \times K}$ be the vector of estimated coefficients.\\
+
+Define the vector of exposure values at time t as $\bar e_t=[\mathbf{1}(e_{1t}>0), \dots, \mathbf{1}(e_{Nt}>0)]_{1 \times N}$. 
+
+Define the cost vector at time t as $c_t$.  We recursively define:\\
+
+$$c_0 = 0_{1 \times N}$$
+$$c_1 = \bar e_1$$
+$$c_2 = (c_1 + e_2) - (Diag(c_1)  \bar e_2)$$
+$$\vdots$$
+$$c_n = (c_{n-1} + \bar e_n) - (Diag(c_{n-1})  \bar e_n)$$
+$$c_\infty = (c_{n} + \bar e_\infty) - (Diag(c_{n})  \bar e_\infty)$$\\
+
+where $Diag(c_n)$ denotes the diagonal matrix with the entries of $c_n$ on its diagonal entries. This recursive formulation captures the notion that the cost of second and future exposures to the experiment are zero.\\
+
+We can also define the exposure vector $e$ in terms of the adjacency matrix of the network, $A_{N \times N}$ (with self-edges), and the treatment allocation vector $\pi \in \{0,1\}^N$.\\
+
+Representing $e$ as a vector, we have: 
+
+$$Diag(A \mathbf{1}_{N} ) ^{-1} A\pi  = e.$$
+
+Where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's.
+
+Therefore, we can write the maximization problem as:
+
+$$Max_{\hat \pi}: E \left( \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  -  c_\infty(\hat \pi) \right)$$
+
+or, we can write:\\
+
+
+$$Max_{\hat \pi, y_i}: E \left( \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  - \sum_{i \leq N} y_i \right)$$ subject to: \\
+
+$$\forall i,  \left( Diag(A \mathbf{1}_{N} ) ^{-1} A \hat \pi \right)_i \leq y_i$$
+
+$$\forall i, y_i, \hat \pi_i \in \{0,1\} $$
 \end{document}
