@@ -1,0 +1,42 @@
+%\usepackage{amsmath}
+%\usepackage{fdsymbol}
+
+%packages for figures
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows, shapes.geometric, patterns}
+\tikzstyle{rand} = [rectangle, minimum width=0.5cm, minimum height=0.5cm,text centered, draw=black]
+\tikzstyle{outp} = [rectangle, minimum width=0.5cm, minimum height=0.5cm,text centered, draw=white]
+\tikzstyle{switc} = [diamond, text centered, draw=black]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{fcn} = [circle, minimum width=0.5cm, minimum height=0.5cm,text centered, draw=black]
+
+\iffalse
+\newcommand*{\Perp}{%
+	\mathrel{\text{%
+			{\rotatebox[origin=c]{90}{\resizebox{2.25ex}{1.65ex}{$\vDash$}}}%
+	}}%
+}
+\fi
+
+
+\def\ms#1{{\color{red} #1}}
+\def\td#1{{\color{blue} #1}}
+
+\def\bN{\mathbb{N}}
+\def\bE{\mathbb{E}}
+\def\bP{\mathbb{P}}
+\def\bI{\mathbb{I}}
+
+\def \abs {\,\big{|}\,}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\def\bx{\bold{x}}
+
+\def\lleq{\preceq}
+\def\lleq1{\preceq_1}
+
+\usepackage{algpseudocode}
+\usepackage{algorithm}
