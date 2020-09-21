@@ -57,7 +57,7 @@ where $e_i(\pi)$ denotes the exposure function at the last period, induced by th
 The DM does not observe the vector $\Gamma$ but has an imperfect estimate of it learned through sequential experimentation, which we will call $\hat \Gamma$. We then formulate the DM's optimization problem:
 
 \begin{align}\label{eq:dm_opti}
-Max_{\hat \pi} : E \lt(\sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi)  \rt) \quad \mbox{s.t. } 1^T \hat \pi \leq D .
+Max_{\hat \pi} : \sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi)  \quad \mbox{s.t. } 1^T \hat \pi \leq D .
 \end{align}
 
 \iffalse
@@ -95,7 +95,7 @@ where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's.
 
 Therefore, we can rewrite the maximization problem \eqref{eq:dm_opti} as:
 
-$$Max_{\hat \pi}: E \left( \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi \right) $$
+$$Max_{\hat \pi}: \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  $$
 
 subject to: 
 
@@ -123,9 +123,38 @@ $$R = z(\Gamma) - z(\hat{\Gamma}) $$.
 \begin{thm}
 The regret is upper bounded by
 \begin{align}
-R \leq (\Gamma - \hat{\Gamma}) K
+\bP(R \leq K) \geq \ms{XXX}
 \end{align}
-where $K$ is a constant that depends on the adjacency matrix $A$, and the allocation budget $D$.
+where $K$ is a constant that depends on the adjacency matrix $A$, the allocation budget $D$, and the error in estimation $\delta$.
 \end{thm}
+
+Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then $R \leq K $ where
+
+$$ K = \delta \frac{ ||d ||  }{ \rho(d_p)} \frac{||b||}{dist(d, Dual\emptyset)- \delta } $$
+
+where $|| \cdot ||$ refers to the 2-norm.
+
+$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, \ms{??} \} $
+
+$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, \ms{??} \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{dist(d, Dual\emptyset)- \delta } $$
+
+
+\begin{lem}[\cite{pena2003characterization} Corollary 2.9]
+For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset)$, is equal to
+\begin{align*}
+\rho(d_P) = \sup \{ \epsilon : ||y|| \leq \epsilon \Rightarrow y \in \{ Ax: x \geq 0, ||x|| \leq 1 \}  \},
+\end{align*}
+where $d_P = (A, b)$.
+\end{lem}
+
+
+We apply Theorem 1.1(5) in \cite{renegar1993some} to characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP. Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. Finally, we replace the condition number of $A$ by computing it as the largest singular value of the matrix $A$, i.e., $\sigma_{max} (A)$. 
+
+\begin{align*}
+\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}
+\end{align*}
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
 
 \end{document}
