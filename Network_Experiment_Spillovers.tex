@@ -118,26 +118,39 @@ $$\forall i, y_i, \hat \pi_i \in \{0,1\} $$
 \subsection{Regret}
 Let $z(\hat \Gamma)$ denote the optimal objective function value of the optimization problem \eqref{eq:dm_opti} given that the DM has estimated the coefficient vector as $\hat{\Gamma} $. Note that an oracle with full knowledge of the coefficient vector $\Gamma$ would be able to achieve $z(\Gamma)$. Thus, we can define the regret as follows:
 
-$$R = z(\Gamma) - z(\hat{\Gamma}) $$.
+$$R = z(\Gamma) - z(\hat{\Gamma}) .$$
 
 \begin{thm}
 The regret is upper bounded by
 \begin{align}
-\bP(R \leq K) \geq \ms{XXX}
+\bP(R \leq K) \geq 1 - \exp{(-\frac{1}{2} (\tau -1 )^2 )}
 \end{align}
-where $K$ is a constant that depends on the adjacency matrix $A$, the allocation budget $D$, and the error in estimation $\delta$.
+where
+\begin{align}
+K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta }
+\end{align}
+
+%where $K$ is a constant that depends on the adjacency matrix $A$, the allocation budget $D$, and the error in estimation $\delta$.
 \end{thm}
 
-Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then $R \leq K $ where
+Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then
 
-$$ K = \delta \frac{ ||d ||  }{ \rho(d_p)} \frac{||b||}{dist(d, Dual\emptyset)- \delta } $$
+$$ R \leq K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$
 
 where $|| \cdot ||$ refers to the 2-norm.
 
-$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, \ms{??} \} $
+$ || (\hat{\Gamma} - \Gamma)^T X || = \delta $
 
-$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, \ms{??} \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{dist(d, Dual\emptyset)- \delta } $$
+\bpf
 
+We apply Theorem 1.1(5) in \cite{renegar1993some} to characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP, $|| \Delta c|| $. Hence, we obtain
+$$ R \leq  || \Delta c || \frac{ ||d ||  }{ dist(d, Pri\emptyset) } \frac{||b||}{dist(d, Dual\emptyset)- || \Delta c || }. $$
+
+First, we note that the norm of the LP instance $d$ is given by the expression:
+
+$$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} . $$
+
+Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. 
 
 \begin{lem}[\cite{pena2003characterization} Corollary 2.9]
 For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset)$, is equal to
@@ -147,12 +160,17 @@ For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset
 where $d_P = (A, b)$.
 \end{lem}
 
-
-We apply Theorem 1.1(5) in \cite{renegar1993some} to characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP. Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. Finally, we replace the condition number of $A$ by computing it as the largest singular value of the matrix $A$, i.e., $\sigma_{max} (A)$. 
-
+Hence, we compute the condition number of $A$ as the largest singular value of the matrix $A$. That is, we have
 \begin{align*}
-\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}
+\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}.
 \end{align*}
+
+Similarly, we can show that the distance to the dual infeasible region is given by the largest singular value of the transpose of the coefficient matrix $A^T$, i.e., $\rho(d_D) = || A^T ||_2 =  \sigma_{max} (A^T) = \sigma_{max} (A) $.
+
+Finally, we use the observation that the perturbation to the coefficient vector is smaller than $\delta$. Therefore, we can conclude that regret is upper bounded by
+
+$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$.
+
 
 \bibliographystyle{plain}
 \bibliography{references.bib}
