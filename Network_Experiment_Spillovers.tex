@@ -40,7 +40,7 @@ At every period $t$, the DM's experimentation creates a cost, because the experi
 
 $$c_t = c \sum_{i \leq N} \mathbf{1}\left( e_{it} > 0 \mbox{ and } e_{is}=0,  \forall s<t \right) .$$
 
-Throughout, we will let $c=1$ for simplicity. Hence, the total cost incurred through experimentation by the DM can be written as   $C= \sum_{t \leq T} c_t  .$ We assume that the DM has to stay below a `contamination budget' of at most $\bar{C}$ during experimentation. Then, as a function of the cost budget $\bar{C}$, we define the value of a policy as follows:
+Throughout, we will let $c=1$ for simplicity. Hence, the total cost incurred through experimentation by the DM can be written as   $C= \sum_{t \leq T} c_t  .$ We assume that the DM has to stay below a `contamination budget' of at most $\bar{C}$ during experimentation. Then, as a function of the contamination budget $\bar{C}$, we define the value of a policy as follows:
 
 $$V(\pi, \bar{C})=\sum_{i \leq N} \Gamma^T x_i e_i(\pi), $$
 
@@ -65,7 +65,7 @@ Let $X_{K \times N}$ denote the matrix of covariates for all the nodes on the gr
 
 Define the vector of exposure values at time t as $\bar e_t=[\mathbf{1}(e_{1t}>0), \dots, \mathbf{1}(e_{Nt}>0)]_{1 \times N}$ and let $c_t$ denote the cost vector at time t.  We can recursively write: $c_0 = 0_{1 \times N}, c_1 = \bar e_1$, and generally, $c_n = (c_{n-1} + \bar e_n) - (Diag(c_{n-1})  \bar e_n) $. $Diag(c_n)$ denotes the diagonal matrix with the entries of $c_n$ on its diagonal entries. This recursive formulation captures the notion that the cost of second and future exposures to the experiment are zero.
 
-We can also define the final exposure vector $e$ in terms of the adjacency matrix of the network, $A_{N \times N}$ (with self-edges), and the final treatment allocation vector $\pi \in \{0,1\}^N$. Representing $e$ as a vector, we have: $Diag(A \mathbf{1}_{N} ) ^{-1} A\pi  = e,$, where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's. Therefore, we can rewrite the maximization problem \eqref{eq:dm_opti} as a convenient linear program, where include the additional relaxation on $\pi_i$ and allow it to take values in $[0,1]$, interpreting the resulting policy as a probabilistic treatment assignment rule:
+We can also define the final exposure vector $e$ in terms of the adjacency matrix of the network, $A_{N \times N}$ (with self-edges), and the final treatment allocation vector $\pi \in \{0,1\}^N$. Representing $e$ as a vector, we have: $Diag(A \mathbf{1}_{N} ) ^{-1} A\pi  = e$, where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's. Therefore, we can rewrite the maximization problem \eqref{eq:dm_opti} as a convenient linear program, where we relax $\pi_i$ and allow it to take values in $[0,1]$, interpreting the resulting policy as a probabilistic treatment assignment rule:
 
 \begin{align}\label{eq:dm_opti_lin}
 Max_{\hat \pi}: \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  \textit{, subject to: } 1^T \hat \pi \leq D , \forall i, \hat \pi_i \in [0,1]
@@ -91,20 +91,18 @@ $$R = z(\Gamma) - z(\hat{\Gamma}) .$$
 
 To analyze the regret of the empirical value maximizing policy $\hat \pi$, let us introduce some notation. Let $\sigma_j( A)$ denote the $j^{th}$ eigenvalue of the matrix A, with $\sigma_1$ being the largest. Suppose that the covariate matrices $X, X_s$ are standardized, so the matrix $X X^T$ is the symmetric correlation matrix. 
 \begin{thm}
-The regret is bounded above by K with the following probability:
+Fix $\tau$. Then, the regret is bounded above by K with the following probability:
 \begin{align}
-\bP(R \leq K) \geq 1 - \exp{(-\frac{1}{2} (\tau -1 )^2 )}
+\bP(R \leq K) \geq 1 - \exp{\lt( -\frac{1}{2} (\tau -1 )^2 \rt)},
 \end{align}
 where
 \begin{align}\label{eq:Kterm}
-K = \delta \frac{ \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta }
+K = \delta \frac{ \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta },
 \end{align}
-
-and $\delta = \tau \sigma_\epsilon \sum_{j=1}^k \sigma_j( (X_s X_s^T)^{-1})$
-%where $K$ is a constant that depends on the adjacency matrix $A$, the allocation budget $D$, and the error in estimation $\delta$.
+and $\delta = \tau \sigma_\epsilon \sum_{j=1}^k \sigma_j( (X_s X_s^T)^{-1})$.
 \end{thm}
 
-The proof is derived from the perturbation analysis of the LP in \eqref{eq:dm_opti_lin}. Assuming $n >> ||\Gamma||$, the term $K$ in \eqref{eq:Kterm} becomes $\delta \frac{n+D^2}{n+1 -  \delta \sqrt{n+1}}$, which converges to $\delta$ as $n \rightarrow \infty$.
+The proof is based on a perturbation analysis of the LP in \eqref{eq:dm_opti_lin} with respect to the objective function coefficients. Assuming $n >> ||\Gamma||$, the term $K$ in \eqref{eq:Kterm} becomes $\delta \frac{n+D^2}{n+1 -  \delta \sqrt{n+1}}$, which converges to $\delta$ as $n \rightarrow \infty$.
 
 \subsection{Proposed Algorithm and Simulations}
 
@@ -201,7 +199,7 @@ In simple terms, our algorithm chooses the most valuable nodes to experiment on 
 %    \end{algorithmic}
 %\end{algorithm}
 
-\bibliographystyle{plain}
-\bibliography{references.bib}
+%\bibliographystyle{plain}
+%\bibliography{references.bib}
 
 \end{document}
