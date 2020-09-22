@@ -4,27 +4,28 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{algorithm,algpseudocode}
+
+
 
 \usepackage{macros/minesu_macro}
 
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 \author{Mine Su Erturk, Eray Turkel}
-\title{ Contamination-Aware Experimentation on Networks }
+\title{ Contamination-Aware Experiments on Networks }
 \begin{document}
 \maketitle
 
 \section{Introduction}
-We study the problem of a decision maker (DM) conducting experiments on a network environment. An `experiment' in the context of our model is treating a node in the network. Each node responds to the treatment differently, depending on their (observable) characteristics.
+We study the problem of a decision maker (DM) conducting experiments over time, on a network environment. An `experiment' in the context of our model is treating a node in the network. Each node responds to the treatment differently, depending on their (observable) characteristics. We also assume that treating a node creates spillovers on neighboring nodes. The DM's goal is learning the optimal treatment allocation over the network by sequentially conducting local experiments on different nodes. 
 
-The DM's goal is learning the optimal treatment allocation over the network by sequentially conducting local experiments on different nodes. Because of the network setting, treating one node creates spillovers on neighboring nodes.
+We assume that there are multiple analysts conducting experiments on the network, as is the case in many online platforms. The DM's experiment creates negative externalities on other ongoing experiments, or the deployed treatments from previously run experiments. We model this as a cost for contaminating the treatment regime of other experimenters. Therefore, the DM has to strike a balance between learning the treatment response function efficiently, and staying within acceptable levels of contamination. We analyze the DM's problem as a sequential decision making problem, which puts our framework closer to the literature on online learning and bandits, instead of using a randomization based inference setting, as is common in the network experimentation literature.
 
-The distinguishing feature of our model is that every experiment creates negative externalities on previous experiments, which we model as a cost for contaminating the treatment regime decided by a previously run experiment. Moreover, we analyze the DM's problem as a sequential decision making problem inspired by the literature on online learning, instead of using a randomization inference framework, as is common in the network experimentation literature.
-
-\subsection{Model}
+\section{Model}
 
 There are N units connected on an undirected, unweighted graph. Denote each unit on the graph by $i \in \{1, \dots, N \}$. The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$. The DM's objective depends on the outcomes of the units, denoted $\{Y_1 , \dots, Y_N\}$ with $Y \in \mathbb{R}$, which respond to a treatment regime that will be determined. The decision maker can run experiments sequentially, at time periods $t \in \{1, \dots , T\}$. Let $w_{it}$ denote the treatment assignment for node $i$ during the period of experimentation $t$, with $w_{it} \in \{0,1\}$, and denote the vector of treatment assignments at time $t$ by $w_t = [w_{1t}, \dots , w_{Nt}] \in \{0,1\}^N$. We assume that the experimentation is local, in the sense that every period, only one node can be treated. Thus for all time periods $t$, $\sum_{i \leq N} w_{it} = 1$.
 
-Each node's outcome depends on their characteristics, the treatment they receive and the exposure to the treatment through their neighbors. Define the exposure for node $i$ at period $t$ as $e_{it}$, which is (for simplicity) assumed to be: 
+Each node's outcome depends on their characteristics, the treatment they receive and the exposure to the treatment through their neighbors. Define the exposure for node $i$ at period $t$ as $e_{it}$, which is assumed to be: 
 $$e_{it} = \frac { \sum_{j \leq N}  \mathbf{1}(j \in nhbd(i)) w_{jt}}{ \sum_{j \leq N} \mathbf{1}(j \in nhbd(i)) }$$
 
 $Y$ is assumed to be a linear function of the unit characteristics and the exposure to the treatment:
@@ -43,7 +44,7 @@ Throughout, we will let $c=1$ for simplicity. Hence, the total cost incurred thr
 
 $$V(\pi, \bar{C})=\sum_{i \leq N} \Gamma^T x_i e_i(\pi), $$
 
-where $e_i(\pi)$ denotes the exposure function determined at the last period for final deployment, induced by the treatment allocation under policy $\pi$, learned through experimentation with the cost budget $\bar{C}$. The DM does not observe the vector $\Gamma$ but has an imperfect estimate of it learned through sequential experimentation, which we will call $\hat \Gamma$. The DM maximizes the empirical value function using its estimate:
+where $e_i(\pi)$ denotes the exposure function determined at the last period for final deployment, induced by the treatment allocation under policy $\pi$, decided after an experimentation period with the contamination budget $\bar{C}$. The DM does not observe the true vector $\Gamma$ but has an imperfect estimate of it learned through sequential experimentation, which we will call $\hat \Gamma$. The DM maximizes the empirical value function using its estimate at the end of the experimentation period:
 
 \begin{align}\label{eq:dm_opti}
 Max_{\hat \pi} : \sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi)  \quad \mbox{s.t. } 1^T \hat \pi \leq D .
@@ -60,13 +61,15 @@ OR (depending on how $\hat \Gamma \rightarrow \Gamma$).
 $$ Min_{\pi} E \left( Sup_\pi \left(\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty \right) - \sum_{i \leq N}  \Gamma^T x_i e_i(\pi) + \hat c_\infty \right) $$
 \fi
 
-Let $X_{K \times N}$ denote the matrix of observed covariates for all the nodes on the graph, and let $X_s$ denote the analogous matrix only for nodes that were exposed to the treatment during the experimentation period. Let $\hat \Gamma _{1 \times K}$ be the vector of estimated coefficients.
+Let $X_{K \times N}$ denote the matrix of covariates for all the nodes on the graph, and let $X_s$ denote the analogous matrix only for nodes that were exposed to the treatment during the experimentation period. Let $\hat \Gamma _{1 \times K}$ be the vector of estimated coefficients.
 
 Define the vector of exposure values at time t as $\bar e_t=[\mathbf{1}(e_{1t}>0), \dots, \mathbf{1}(e_{Nt}>0)]_{1 \times N}$ and let $c_t$ denote the cost vector at time t.  We can recursively write: $c_0 = 0_{1 \times N}, c_1 = \bar e_1$, and generally, $c_n = (c_{n-1} + \bar e_n) - (Diag(c_{n-1})  \bar e_n) $. $Diag(c_n)$ denotes the diagonal matrix with the entries of $c_n$ on its diagonal entries. This recursive formulation captures the notion that the cost of second and future exposures to the experiment are zero.
 
-We can also define the final exposure vector $e$ in terms of the adjacency matrix of the network, $A_{N \times N}$ (with self-edges), and the final treatment allocation vector $\pi \in \{0,1\}^N$. Representing $e$ as a vector, we have: $Diag(A \mathbf{1}_{N} ) ^{-1} A\pi  = e,$, where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's. Therefore, we can rewrite the maximization problem \eqref{eq:dm_opti} as a convenient linear program:
+We can also define the final exposure vector $e$ in terms of the adjacency matrix of the network, $A_{N \times N}$ (with self-edges), and the final treatment allocation vector $\pi \in \{0,1\}^N$. Representing $e$ as a vector, we have: $Diag(A \mathbf{1}_{N} ) ^{-1} A\pi  = e,$, where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's. Therefore, we can rewrite the maximization problem \eqref{eq:dm_opti} as a convenient linear program, where include the additional relaxation on $\pi_i$ and allow it to take values in $[0,1]$, interpreting the resulting policy as a probabilistic treatment assignment rule:
 
-$$Max_{\hat \pi}: \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  \textit{, subject to: } 1^T \hat \pi \leq D , \forall i, \hat \pi_i \in \{0,1\} $$
+\begin{align}\label{eq:dm_opti_lin}
+Max_{\hat \pi}: \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  \textit{, subject to: } 1^T \hat \pi \leq D , \forall i, \hat \pi_i \in [0,1]
+\end{align}
 
 
 %$$Max_{\hat \pi}: E \left( \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  -  c_\infty(\hat \pi) \right)$$
@@ -81,19 +84,19 @@ $$\forall i,  \left( Diag(A \mathbf{1}_{N} ) ^{-1} A \hat \pi \right)_i \leq y_i
 $$\forall i, y_i, \hat \pi_i \in \{0,1\} $$
 \fi
 
-\subsection{Regret Analysis}
-Let $z(\hat \Gamma)$ denote the optimal objective function value of the optimization problem \eqref{eq:dm_opti} given that the DM has estimated the coefficient vector as $\hat{\Gamma} $. Note that an oracle with full knowledge of the coefficient vector $\Gamma$ would be able to achieve $z(\Gamma)$. Thus, we can define the regret as follows:
+\section{Regret Analysis}
+Let $z(\hat \Gamma)$ denote the optimal objective function value of the optimization problem \eqref{eq:dm_opti_lin} given that the DM has estimated the coefficient vector as $\hat{\Gamma} $. Note that an oracle with full knowledge of the coefficient vector $\Gamma$ would be able to achieve $z(\Gamma)$. Thus, we can define the regret as follows:
 
 $$R = z(\Gamma) - z(\hat{\Gamma}) .$$
 
-To analyze the regret of the empirical value maximizing policy $\hat \pi$, let us introduce some notation. Let $\sigma_j( A)$ denote the $j^{th}$ eigenvalue of the matrix A, with $\sigma_1$ being the largest. Suppose that the covariate matrices $X, X_s$ are standardized, therefore the matrix $X X^T$ is the symmetric correlation matrix. 
+To analyze the regret of the empirical value maximizing policy $\hat \pi$, let us introduce some notation. Let $\sigma_j( A)$ denote the $j^{th}$ eigenvalue of the matrix A, with $\sigma_1$ being the largest. Suppose that the covariate matrices $X, X_s$ are standardized, so the matrix $X X^T$ is the symmetric correlation matrix. 
 \begin{thm}
 The regret is bounded above by K with the following probability:
 \begin{align}
 \bP(R \leq K) \geq 1 - \exp{(-\frac{1}{2} (\tau -1 )^2 )}
 \end{align}
 where
-\begin{align}
+\begin{align}\label{eq:Kterm}
 K = \delta \frac{ \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta }
 \end{align}
 
@@ -101,11 +104,14 @@ and $\delta = \tau \sigma_\epsilon \sum_{j=1}^k \sigma_j( (X_s X_s^T)^{-1})$
 %where $K$ is a constant that depends on the adjacency matrix $A$, the allocation budget $D$, and the error in estimation $\delta$.
 \end{thm}
 
-The proof is derived from the perturbation analysis of the LP in \eqref{eq:dm_opti}. Assuming $n >> ||\Gamma||$, the term $K$ in theorem 1 becomes $\delta \frac{n+D^2}{n+1 -  \delta \sqrt{n+1}}$, which converges to 1 as $n \rightarrow \infty$.
+The proof is derived from the perturbation analysis of the LP in \eqref{eq:dm_opti_lin}. Assuming $n >> ||\Gamma||$, the term $K$ in \eqref{eq:Kterm} becomes $\delta \frac{n+D^2}{n+1 -  \delta \sqrt{n+1}}$, which converges to $\delta$ as $n \rightarrow \infty$.
 
-\subsection{Simulations and Proposed Algorithm}
+\subsection{Proposed Algorithm and Simulations}
 
-We propose an algorithm based on information-directed sampling and the literature on linear bandits, which adaptively chooses experimental subjects that will maximize information gain, or reduce the variance of the coefficient estimates. Since our setting has an additional component which is the contamination cost due to externalities on other experiments, we use a knapsack-based heuristic $c-\mu$ rule, which chooses the most informative nodes to experiment on, taking into account the cost of contaminating other nodes which is determined by the network topology.
+We propose an algorithm based on information-directed sampling and the literature on linear bandits, which adaptively chooses experimental subjects that will maximize information gain. Since our setting has an additional component which is the contamination cost due to externalities on other experiments, we use a knapsack-based heuristic $c-\mu$ rule.
+
+In simple terms, our algorithm chooses the most valuable nodes to experiment on greedily at every period, taking into account the cost of contaminating other nodes. We measure the information gain from experimenting on a given node by the change in the trace of the matrix $( X_s X_s^T)^{-1}$ after adding all the unexposed neighbors of the target node to the set of exposed nodes. We calculate the cost of experimenting on a node by calculating the number of new exposures resulting from treating the target node. We get the value of experimenting on a node by taking the ratio of the information gain to the cost, and determine the path of experimentation by sequentially choosing the nodes with the highest value until we reach our contamination budget, $\bar{C}$. Using this algorithm to determine which nodes to experiment on every period, the DM updates their estimate of the coefficient vector $\hat \Gamma$ after every experiment, solving the maximization problem in \eqref{eq:dm_opti_lin} in the last period to decide on a final treatment regime that will be deployed.
+
 
 %which characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP, $|| \Delta c|| $.
 %
@@ -145,7 +151,55 @@ We propose an algorithm based on information-directed sampling and the literatur
 %Finally, we use the observation that the perturbation to the coefficient vector is smaller than $\delta$. Therefore, we can conclude that regret is upper bounded by
 %
 %$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$.
-
+%
+%\begin{algorithm}
+%    \caption{Contamination-aware sequential experimentation}
+%    \label{cmu_sampling}
+%    \begin{algorithmic}[] % The number tells where the line numbering should start
+%        \Procedure{Calculate value}{Target, X (Matrix), Treated Nodes (Set), Exposed Nodes (Set)} 
+%            \If{$ Target \in Treated Nodes$} \State \textbf{return} 0
+%            \Else
+%            \State $NewExposedNodes\gets Neighbors(Target) \cup ExposedNodes$
+%            \State $Cost \gets |Neighbors(Target) \setminus ExposedNodes|$
+%            \State $X_{E} \gets X[ExposedNodes]$
+%            \State $X_{N} \gets X[NewExposedNodes]$            
+%            \State $InformationGain \gets tr( (X_{E} X_{E} ^T) ^ {-1} ) - tr( (X_{N} X_{N} ^T) ^ {-1} )$
+%            \State $Value \gets InformationGain/Cost$
+%            \State \textbf{return} $Value$
+%            \EndIf
+%        \EndProcedure
+%        \\\hrulefill
+%        \Function{Sampling Path}{A (Matrix), $\bar{C}$ (Contamination Budget), X (Matrix)} 
+%            \State $Path \gets [ ]$
+%            \State $Cost \gets 0$
+%            \State $Treated Nodes \gets \emptyset$
+%            \State $Exposed Nodes \gets \emptyset$
+%            \While{$Cost < \bar{C}$}
+%                \State $a \gets b$
+%                \State $b \gets r$
+%                \State $r \gets a \bmod b$
+%            \EndWhile\label{euclidendwhile}
+%            \State \textbf{return} $b$
+%        \EndFunction
+%      \end{algorithmic}
+%\end{algorithm}
+%\begin{algorithm}
+%    \caption{Calculate the value of experimenting on a node}
+%    \begin{algorithmic}[1] % The number tells where the line numbering should start
+%                \Procedure{Calculate value}{Target, X (Matrix), Treated Nodes (Set), Exposed Nodes (Set)} 
+%            \If{$ Target \in Treated Nodes$} \State \textbf{return} 0
+%            \Else
+%            \State $NewExposedNodes\gets Neighbors(Target) \cup ExposedNodes$
+%            \State $Cost \gets |UnexposedNeighbors|$
+%            \State $X_{E} \gets X[ExposedNodes]$
+%            \State $X_{N} \gets X[NewExposedNodes]$            
+%            \State $InformationGain \gets tr( (X_{E} X_{E} ^T) ^ {-1} ) - tr( (X_{N} X_{N} ^T) ^ {-1} )$
+%            \State $Value \gets InformationGain/Cost$
+%            \State \textbf{return} $Value$
+%            \EndIf
+%        \EndProcedure
+%    \end{algorithmic}
+%\end{algorithm}
 
 \bibliographystyle{plain}
 \bibliography{references.bib}

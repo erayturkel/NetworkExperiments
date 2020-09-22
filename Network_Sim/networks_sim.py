@@ -37,7 +37,7 @@ def knapsack_greedy(adj, cov_mat, cost_max):
     cand_val=-math.inf
     for i in range(n):
         covs_node=cov_mat[:,np.array(adj[i,],dtype=bool)[0]]
-        var_reduction[i]=1/np.linalg.det(np.linalg.inv(np.dot(covs_node,covs_node.T)))
+        var_reduction[i]=1/np.trace(np.linalg.inv(np.dot(covs_node,covs_node.T)))
         values[i]=var_reduction[i]/np.sum(adj[i,])
         if(np.sum(adj[i,])<=cost_max):
             if(values[i]>cand_val):
@@ -54,12 +54,12 @@ def knapsack_greedy(adj, cov_mat, cost_max):
         cand_val=-math.inf
         var_reduction=np.zeros(n)
         values=np.zeros(n)
-        old_var=np.linalg.det(np.linalg.inv(np.dot(covs_node,covs_node.T)))
+        old_var=np.trace(np.linalg.inv(np.dot(covs_node,covs_node.T)))
         for i in range(n):
             new_exp=np.maximum(exposed_vec,adj[i,])
             if(treated_choice_vec[i]==0 and np.sum(new_exp)<=cost_max):
                 cand_covs_node=cov_mat[:,np.array(new_exp,dtype=bool)[0]]
-                new_var=np.linalg.det(np.linalg.inv(np.dot(cand_covs_node,cand_covs_node.T)))
+                new_var=np.trace(np.linalg.inv(np.dot(cand_covs_node,cand_covs_node.T)))
                 values[i]=(old_var-new_var)/(np.sum(new_exp)-np.sum(exposed_vec))
                 if(values[i]>cand_val):
                     cand_val=values[i]
@@ -116,8 +116,8 @@ def simul_numbers(num_sim,graph_size,graph_connect,cov_num,max_deploy,max_learn)
         mat_rand_graph=nx.adjacency_matrix(rand_graph,weight=None)
         mat_rand_graph.setdiag(1)
         mat_adj_graph=(mat_rand_graph.todense())  
-        covariate_mat = np.random.multivariate_normal(np.zeros(cov_num), np.identity(cov_num), graph_size).T
-        true_vec = np.random.multivariate_normal(np.zeros(cov_num), np.identity(cov_num)*2)
+        covariate_mat = np.random.multivariate_normal(np.zeros(cov_num), np.identity(cov_num)*2, graph_size).T
+        true_vec = np.random.multivariate_normal(np.zeros(cov_num), np.identity(cov_num)*3)
         try:
             treated_seq=knapsack_greedy(mat_adj_graph,covariate_mat,max_learn)       
             learn_results=learn_gamma(mat_adj_graph,covariate_mat,true_vec,treated_seq) 
@@ -126,7 +126,7 @@ def simul_numbers(num_sim,graph_size,graph_connect,cov_num,max_deploy,max_learn)
             val_learned=learned_prob['value']
             oracle_prob=solve_opt_policy(mat_adj_graph,covariate_mat,true_vec,max_deploy)
             val_oracle=oracle_prob['value']
-            value_gap[i]=(val_oracle-val_learned)/val_oracle
+            value_gap[i]=1-abs(val_learned/val_oracle)
         except:
             value_gap[i]=value_gap[i-1]
             print('Exception')
@@ -135,14 +135,14 @@ def simul_numbers(num_sim,graph_size,graph_connect,cov_num,max_deploy,max_learn)
     
     
 def simul_grid(graph_size,graph_connect,num_sims):
-    max_deploy_grid=np.linspace(start=graph_size/4, stop=graph_size, num=4)
-    cov_num=10
-    mean_gap_grid=np.zeros(shape=(4,4))
-    sdev_gap_grid=np.zeros(shape=(4,4))
+    max_deploy_grid=np.linspace(start=graph_size, stop=graph_size, num=1)
+    cov_num=5
+    mean_gap_grid=np.zeros(shape=(1,4))
+    sdev_gap_grid=np.zeros(shape=(1,4))
     i=0
     for j in max_deploy_grid:
         k=0
-        max_learn_grid=np.linspace(start=j/2, stop=j, num =4)
+        max_learn_grid=np.linspace(start=j/4, stop=3*j/4, num =4)
         for q in max_learn_grid:
             result_gaps=simul_numbers(num_sims,graph_size,graph_connect,cov_num,max_deploy=j,max_learn=q)
             mean_gap_grid[i,k]=np.mean(result_gaps)
@@ -156,6 +156,6 @@ def simul_grid(graph_size,graph_connect,num_sims):
 result_sims=simul_grid(500,0.1,500)
 
 
-np.savetxt('sim_results_mean.csv', result_sims['mean_gaps'], delimiter=',')
-np.savetxt('sim_results_sdev.csv', result_sims['sdev_gaps'], delimiter=',')
+np.savetxt('sim_results_n1000_mean.csv', result_sims['mean_gaps'], delimiter=',')
+np.savetxt('sim_results_n1000_sdev.csv', result_sims['sdev_gaps'], delimiter=',')
 
