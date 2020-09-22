@@ -11,8 +11,21 @@
 \usepackage{macros/minesu_macro}
 
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
-\author{Mine Su Erturk, Eray Turkel}
 \title{ Contamination-Aware Experiments on Networks }
+
+\author{
+Mine Su Erturk\\
+Graduate School of Business\\
+Stanford University\\
+   \texttt{mserturk@stanford.edu} 
+  \and
+Eray Turkel\\
+Graduate School of Business\\
+Stanford University\\
+   \texttt{eturkel@stanford.edu} 
+}
+
+\date{}
 \begin{document}
 \maketitle
 
@@ -91,13 +104,13 @@ $$R = z(\Gamma) - z(\hat{\Gamma}) .$$
 
 To analyze the regret of the empirical value maximizing policy $\hat \pi$, let us introduce some notation. Let $\sigma_j( A)$ denote the $j^{th}$ eigenvalue of the matrix A, with $\sigma_1$ being the largest. Suppose that the covariate matrices $X, X_s$ are standardized, so the matrix $X X^T$ is the symmetric correlation matrix. 
 \begin{thm}
-Fix $\tau$. Then, the regret is bounded above by K with the following probability:
+Fix $\tau \geq 0$. Then, the regret is bounded above by K with the following probability:
 \begin{align}
 \bP(R \leq K) \geq 1 - \exp{\lt( -\frac{1}{2} (\tau -1 )^2 \rt)},
 \end{align}
 where
 \begin{align}\label{eq:Kterm}
-K = \delta \frac{ \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta },
+K = \delta \cdot \frac{ \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \cdot \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta },
 \end{align}
 and $\delta = \tau \sigma_\epsilon \sum_{j=1}^k \sigma_j( (X_s X_s^T)^{-1})$.
 \end{thm}
@@ -111,6 +124,9 @@ We propose an algorithm based on information-directed sampling and the literatur
 In simple terms, our algorithm chooses the most valuable nodes to experiment on greedily at every period, taking into account the cost of contaminating other nodes. We measure the information gain from experimenting on a given node by the change in the trace of the matrix $( X_s X_s^T)^{-1}$ after adding all the unexposed neighbors of the target node to the set of exposed nodes. We calculate the cost of experimenting on a node by calculating the number of new exposures resulting from treating the target node. We get the value of experimenting on a node by taking the ratio of the information gain to the cost, and determine the path of experimentation by sequentially choosing the nodes with the highest value until we reach our contamination budget, $\bar{C}$. Using this algorithm to determine which nodes to experiment on every period, the DM updates their estimate of the coefficient vector $\hat \Gamma$ after every experiment, solving the maximization problem in \eqref{eq:dm_opti_lin} in the last period to decide on a final treatment regime that will be deployed.
 
 
+
+%\bpf
+
 %which characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP, $|| \Delta c|| $.
 %
 %Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then
@@ -121,7 +137,7 @@ In simple terms, our algorithm chooses the most valuable nodes to experiment on 
 %
 %$ || (\hat{\Gamma} - \Gamma)^T X || = \delta $
 %
-%\bpf
+
 % Hence, we obtain
 %$$ R \leq  || \Delta c || \frac{ ||d ||  }{ dist(d, Pri\emptyset) } \frac{||b||}{dist(d, Dual\emptyset)- || \Delta c || }. $$
 %
