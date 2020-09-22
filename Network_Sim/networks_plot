@@ -10,11 +10,14 @@ import matplotlib.pyplot as plt
 
 means=result_sims['mean_gaps']
 sds=result_sims['sdev_gaps']
-x_axis=[r'$\bar{C}=0.25 D$',r'$\bar{C}=0.5 D$', r'$\bar{C}=0.75 D$', r'$\bar{C}=D$']
-plt.errorbar(x_axis, means[0,:], yerr=1.96*sds[0,:], label='D=0.25 N')
-plt.errorbar(x_axis, means[1,:], yerr=1.96*sds[1,:], label='D=0.5 N')
-plt.errorbar(x_axis, means[2,:], yerr=1.96*sds[2,:], label='D=0.75 N')
-plt.errorbar(x_axis, means[3,:], yerr=1.96*sds[3,:], label='D=N')
-plt.legend(loc='lower right');
-plt.title(r'Percentage Gap to Oracle Value, as a function of $\bar C$ and $D$', fontdict=None, loc='center')
+
+means=means[1:,1:]
+sds=sds[1:,1:]
+x_axis=[r'$\bar{C}=0.5 D$', r'$\bar{C}=0.75 D$', r'$\bar{C}=D$']
+plt.scatter(x_axis, means[0,:],  label='D=0.25 N')
+plt.scatter(x_axis, means[1,:],  label='D=0.5 N')
+plt.scatter(x_axis, means[2,:],  label='D=0.75 N')
+#plt.errorbar(x_axis, means[3,:], yerr=1.96*sds[3,:], label='D=N')
+plt.legend(loc='lower left');
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$ and $D$', fontdict=None, loc='center')
 plt.show()

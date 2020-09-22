@@ -8,6 +8,7 @@ import math
 
 #Find optimal solution given adj matrix and covariate matrices
 
+
 def solve_opt_policy(adj, cov_mat, coef_vec, deploy_max):  
     n=((adj).shape)[1]
     inv_component=np.linalg.inv(np.diagflat(adj.dot(np.ones(n))))
@@ -107,6 +108,15 @@ def learn_gamma(adj,cov_mat,lambda_vec,seq):
     return(dict(total_out=total_outcomes,total_exposure=total_exps,total_covariates=total_covs,gamma=gamma_hat))
     
    
+    
+
+def get_actual_value(adj,cov_mat,true_vec,policy):
+    n=((adj).shape)[1]
+    inv_component=np.linalg.inv(np.diagflat(adj.dot(np.ones(n))))
+    first_component=np.dot(true_vec.dot(cov_mat),inv_component)
+    multval=np.dot(first_component,adj)
+    return(-np.dot(multval,policy))
+
 
 
 def simul_numbers(num_sim,graph_size,graph_connect,cov_num,max_deploy,max_learn):
@@ -123,10 +133,10 @@ def simul_numbers(num_sim,graph_size,graph_connect,cov_num,max_deploy,max_learn)
             learn_results=learn_gamma(mat_adj_graph,covariate_mat,true_vec,treated_seq) 
             learned_coef=learn_results['gamma']
             learned_prob=solve_opt_policy(mat_adj_graph,covariate_mat,learned_coef,max_deploy)
-            val_learned=learned_prob['value']
+            val_learned=get_actual_value(mat_adj_graph,covariate_mat,true_vec,learned_prob['policy'])
             oracle_prob=solve_opt_policy(mat_adj_graph,covariate_mat,true_vec,max_deploy)
             val_oracle=oracle_prob['value']
-            value_gap[i]=1-abs(val_learned/val_oracle)
+            value_gap[i]=1-(val_learned/val_oracle)
         except:
             value_gap[i]=value_gap[i-1]
             print('Exception')
@@ -135,14 +145,14 @@ def simul_numbers(num_sim,graph_size,graph_connect,cov_num,max_deploy,max_learn)
     
     
 def simul_grid(graph_size,graph_connect,num_sims):
-    max_deploy_grid=np.linspace(start=graph_size, stop=graph_size, num=1)
+    max_deploy_grid=np.linspace(start=graph_size/4, stop=3*graph_size/4, num=4)
     cov_num=5
-    mean_gap_grid=np.zeros(shape=(1,4))
-    sdev_gap_grid=np.zeros(shape=(1,4))
+    mean_gap_grid=np.zeros(shape=(4,4))
+    sdev_gap_grid=np.zeros(shape=(4,4))
     i=0
     for j in max_deploy_grid:
         k=0
-        max_learn_grid=np.linspace(start=j/4, stop=3*j/4, num =4)
+        max_learn_grid=np.linspace(start=j/4, stop=j, num =4)
         for q in max_learn_grid:
             result_gaps=simul_numbers(num_sims,graph_size,graph_connect,cov_num,max_deploy=j,max_learn=q)
             mean_gap_grid[i,k]=np.mean(result_gaps)
@@ -153,7 +163,7 @@ def simul_grid(graph_size,graph_connect,num_sims):
                 
                         
                 
-result_sims=simul_grid(500,0.1,500)
+result_sims=simul_grid(2000,0.05,1000)
 
 
 np.savetxt('sim_results_n1000_mean.csv', result_sims['mean_gaps'], delimiter=',')

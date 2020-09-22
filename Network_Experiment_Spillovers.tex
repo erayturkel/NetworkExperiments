@@ -98,19 +98,19 @@ $$\forall i, y_i, \hat \pi_i \in \{0,1\} $$
 \fi
 
 \section{Regret Analysis}
-Let $z(\hat \Gamma)$ denote the optimal objective function value of the optimization problem \eqref{eq:dm_opti_lin} given that the DM has estimated the coefficient vector as $\hat{\Gamma} $. Note that an oracle with full knowledge of the coefficient vector $\Gamma$ would be able to achieve $z(\Gamma)$. Thus, we can define the regret as follows:
+Let $\hat \pi$ denote the optimal policy maximizing the optimization problem \eqref{eq:dm_opti_lin} given that the DM has estimated the coefficient vector as $\hat{\Gamma} $, which achieves the value $V(\hat \pi, \bar{C})$. Let $V(\pi^*)$ be the optimal value achievable by the oracle who solves the optimization problem \eqref{eq:dm_opti_lin} with the true coefficient vector $\Gamma$. Thus, we can define the regret as follows:
 
-$$R = z(\Gamma) - z(\hat{\Gamma}) .$$
+$$R = V(\pi^*) - V(\hat \pi, \bar{C}) .$$
 
 To analyze the regret of the empirical value maximizing policy $\hat \pi$, let us introduce some notation. Let $\sigma_j( A)$ denote the $j^{th}$ eigenvalue of the matrix A, with $\sigma_1$ being the largest. Suppose that the covariate matrices $X, X_s$ are standardized, so the matrix $X X^T$ is the symmetric correlation matrix. 
 \begin{thm}
-Fix $\tau \geq 0$. Then, the regret is bounded above by K with the following probability:
+Fix $\tau \geq 0$. Then, regret is bounded above by K with the following probability:
 \begin{align}
 \bP(R \leq K) \geq 1 - \exp{\lt( -\frac{1}{2} (\tau -1 )^2 \rt)},
 \end{align}
 where
 \begin{align}\label{eq:Kterm}
-K = \delta \cdot \frac{ \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \cdot \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta },
+K =\frac{  \delta  \max \{\sqrt{n+D^2}, || \Gamma || \sigma_{1} (X X^T) \} }{ \sqrt{n+1} } \cdot \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta },
 \end{align}
 and $\delta = \tau \sigma_\epsilon \sum_{j=1}^k \sigma_j( (X_s X_s^T)^{-1})$.
 \end{thm}
@@ -123,6 +123,14 @@ We propose an algorithm based on information-directed sampling and the literatur
 
 In simple terms, our algorithm chooses the most valuable nodes to experiment on greedily at every period, taking into account the cost of contaminating other nodes. We measure the information gain from experimenting on a given node by the change in the trace of the matrix $( X_s X_s^T)^{-1}$ after adding all the unexposed neighbors of the target node to the set of exposed nodes. We calculate the cost of experimenting on a node by calculating the number of new exposures resulting from treating the target node. We get the value of experimenting on a node by taking the ratio of the information gain to the cost, and determine the path of experimentation by sequentially choosing the nodes with the highest value until we reach our contamination budget, $\bar{C}$. Using this algorithm to determine which nodes to experiment on every period, the DM updates their estimate of the coefficient vector $\hat \Gamma$ after every experiment, solving the maximization problem in \eqref{eq:dm_opti_lin} in the last period to decide on a final treatment regime that will be deployed.
 
+We run simulation experiments to compare the performance of our proposed algorithm against the policy chosen by an oracle who knows the true response function. For each simulation, we draw an Erdos-Renyi random graph with 500 nodes and $p =0.1$, create our random covariate matrix $X_{5 \times 500}$ using draws from independent standard normal random variables, and generate our true coefficient vector $\Gamma$ drawing from a 5-dimensional normal distribution with mean zero and covariance matrix $I_5$. Our results show that the proposed algorithm performs reasonably well on medium-sized graphs, and the percentage gap to the oracle value falls below $20 \%$ when $\bar{C}$ approaches half of the graph size.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[scale=0.5]{simplot}
+\caption{Percentage gap to oracle value ($\frac{ V(\pi^*) - V(\hat \pi, \bar{C})}{V(\pi^*) }$), under different deployment and contamination budgets. N=500, and 100 simulations for every parameter combination.}
+\end{center}
+\end{figure}
 
 
 %\bpf
