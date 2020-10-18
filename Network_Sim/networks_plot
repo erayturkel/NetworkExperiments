@@ -7,17 +7,119 @@ Created on Tue Sep 22 11:06:48 2020
 """
 
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
-means=result_sims['mean_gaps']
-sds=result_sims['sdev_gaps']
+means=pd.read_csv("sim_results_n500_grid_mean.csv", header=None)
+means=np.array(means)
+sds=pd.read_csv("sim_results_n500_grid_sdev.csv", header=None)
+sds=np.array(sds)
 
-means=means[1:,1:]
-sds=sds[1:,1:]
-x_axis=[r'$\bar{C}=0.5 D$', r'$\bar{C}=0.75 D$', r'$\bar{C}=D$']
-plt.scatter(x_axis, means[0,:],  label='D=0.25 N')
-plt.scatter(x_axis, means[1,:],  label='D=0.5 N')
-plt.scatter(x_axis, means[2,:],  label='D=0.75 N')
-#plt.errorbar(x_axis, means[3,:], yerr=1.96*sds[3,:], label='D=N')
+x_axis=[r'$\bar{C}=100$',r'$\bar{C}=233$', r'$\bar{C}=366$', r'$\bar{C}=500 $']
+plt.scatter(x_axis, means[0,:],  label='D=100')
+plt.scatter(x_axis, means[1,:],  label='D=233')
+plt.scatter(x_axis, means[2,:],  label='D=366')
+plt.scatter(x_axis, means[3,:], label='D=500')
 plt.legend(loc='lower left');
 plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$ and $D$', fontdict=None, loc='center')
 plt.show()
+
+plt.clf()
+
+
+x_axis=[r'$\bar{C}=100$',r'$\bar{C}=233$', r'$\bar{C}=366$', r'$\bar{C}=500 $']
+plt.errorbar(x_axis, means[0,:],yerr=sds[0,:],  label='D=100',fmt='o')
+plt.errorbar(x_axis, means[1,:],yerr=sds[1,:],  label='D=233',fmt='o')
+plt.errorbar(x_axis, means[2,:],yerr=sds[2,:],  label='D=366',fmt='o')
+plt.errorbar(x_axis, means[3,:], yerr=sds[3,:], label='D=500',fmt='o')
+plt.legend(loc='lower left');
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$ and $D$', fontdict=None, loc='center')
+plt.show()
+
+
+
+means=pd.read_csv("sim_results_n100_p_005_grid_mean.csv", header=None)
+means=np.array(means)
+sds=pd.read_csv("sim_results_n100_p_005_grid_sdev.csv", header=None)
+sds=np.array(sds)
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.scatter(x_axis, means[0,1:])
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.05, D=50', fontdict=None, loc='center')
+plt.show()
+
+plt.clf()
+
+
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.errorbar(x_axis, means[0,1:],yerr=sds[0,1:],fmt='o')
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$.N=100, p=0.05, D=50', fontdict=None, loc='center')
+plt.show()
+
+
+
+
+means=pd.read_csv("sim_results_n100_p_01_grid_mean.csv", header=None)
+means=np.array(means)
+sds=pd.read_csv("sim_results_n100_p_01_grid_sdev.csv", header=None)
+sds=np.array(sds)
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.scatter(x_axis, means[0,1:])
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.1, D=50', fontdict=None, loc='center')
+plt.show()
+
+plt.clf()
+
+
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.errorbar(x_axis, means[0,1:],yerr=sds[0,1:],fmt='o')
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.1, D=50', fontdict=None, loc='center')
+plt.show()
+
+
+
+means=pd.read_csv("sim_results_n100_p_0025_grid_mean.csv", header=None)
+means=np.array(means)
+sds=pd.read_csv("sim_results_n100_p_0025_grid_sdev.csv", header=None)
+sds=np.array(sds)
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.scatter(x_axis, means[0,1:])
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.025, D=50', fontdict=None, loc='center')
+plt.show()
+
+plt.clf()
+
+
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.errorbar(x_axis, means[0,1:],yerr=sds[0,1:],fmt='o')
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.025, D=50', fontdict=None, loc='center')
+plt.show()
+
+
+
+
+
+means=pd.read_csv("sim_results_n100_p_01_c_5_grid_mean.csv", header=None)
+means=np.array(means)
+sds=pd.read_csv("sim_results_n100_p_01_c_5_grid_sdev.csv", header=None)
+sds=np.array(sds)
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.scatter(x_axis, means[0,1:])
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.1, D=50, cov=5', fontdict=None, loc='center')
+plt.show()
+
+plt.clf()
+
+
+
+x_axis=[r'$\bar{C}=23$', r'$\bar{C}=35$', r'$\bar{C}=48 $',r'$\bar{C}=61$',r'$\bar{C}=75$',r'$\bar{C}=87$',r'$\bar{C}=100$',]
+plt.errorbar(x_axis, means[0,1:],yerr=sds[0,1:],fmt='o')
+plt.title(r'Average percentage gap to oracle value, as a function of $\bar C$. N=100, p=0.1, D=50, cov=5', fontdict=None, loc='center')
+plt.show()
+

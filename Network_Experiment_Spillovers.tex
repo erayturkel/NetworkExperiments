@@ -136,44 +136,44 @@ We run simulation experiments to compare the performance of our proposed algorit
 %\bpf
 
 %which characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP, $|| \Delta c|| $.
-%
-%Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then
-%
-%$$ R \leq K = \delta \frac{ \max \{ \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$
-%
-%where $|| \cdot ||$ refers to the 2-norm.
-%
-%$ || (\hat{\Gamma} - \Gamma)^T X || = \delta $
-%
+
+Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then
+
+$$ R \leq K = \delta \frac{ \max \{ \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$
+
+where $|| \cdot ||$ refers to the 2-norm.
+
+$ || (\hat{\Gamma} - \Gamma)^T X || = \delta $
+
 
 % Hence, we obtain
-%$$ R \leq  || \Delta c || \frac{ ||d ||  }{ dist(d, Pri\emptyset) } \frac{||b||}{dist(d, Dual\emptyset)- || \Delta c || }. $$
-%
-%First, we note that the norm of the LP instance $d$ is given by the expression:
-%
-%$$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} . $$
-%
-%Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. 
-%
-%\begin{lem}[\cite{pena2003characterization} Corollary 2.9]
-%For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset)$, is equal to
-%\begin{align*}
-%\rho(d_P) = \sup \{ \epsilon : ||y|| \leq \epsilon \Rightarrow y \in \{ Ax: x \geq 0, ||x|| \leq 1 \}  \},
-%\end{align*}
-%where $d_P = (A, b)$.
-%\end{lem}
-%
-%Hence, we compute the condition number of $A$ as the largest singular value of the matrix $A$. That is, we have
-%\begin{align*}
-%\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}.
-%\end{align*}
-%
-%Similarly, we can show that the distance to the dual infeasible region is given by the largest singular value of the transpose of the coefficient matrix $A^T$, i.e., $\rho(d_D) = || A^T ||_2 =  \sigma_{max} (A^T) = \sigma_{max} (A) $.
-%
-%Finally, we use the observation that the perturbation to the coefficient vector is smaller than $\delta$. Therefore, we can conclude that regret is upper bounded by
-%
-%$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$.
-%
+$$ R \leq  || \Delta c || \frac{ ||d ||  }{ dist(d, Pri\emptyset) } \frac{||b||}{dist(d, Dual\emptyset)- || \Delta c || }. $$
+
+First, we note that the norm of the LP instance $d$ is given by the expression:
+
+$$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} . $$
+
+Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. 
+
+\begin{lem}[\cite{pena2003characterization} Corollary 2.9]
+For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset)$, is equal to
+\begin{align*}
+\rho(d_P) = \sup \{ \epsilon : ||y|| \leq \epsilon \Rightarrow y \in \{ Ax: x \geq 0, ||x|| \leq 1 \}  \},
+\end{align*}
+where $d_P = (A, b)$.
+\end{lem}
+
+Hence, we compute the condition number of $A$ as the largest singular value of the matrix $A$. That is, we have
+\begin{align*}
+\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}.
+\end{align*}
+
+Similarly, we can show that the distance to the dual infeasible region is given by the largest singular value of the transpose of the coefficient matrix $A^T$, i.e., $\rho(d_D) = || A^T ||_2 =  \sigma_{max} (A^T) = \sigma_{max} (A) $.
+
+Finally, we use the observation that the perturbation to the coefficient vector is smaller than $\delta$. Therefore, we can conclude that regret is upper bounded by
+
+$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$.
+
 %\begin{algorithm}
 %    \caption{Contamination-aware sequential experimentation}
 %    \label{cmu_sampling}
