@@ -64,7 +64,7 @@ def knapsack_greedy(adj, cov_mat, cost_max):
                 elif((np.sum(new_exp)-np.sum(exposed_vec))==0):
                     values[i]=0
                 else:
-                    values[i]=(old_var-new_var)/(np.sum(new_exp)-np.sum(exposed_vec))
+                    values[i]=(old_var-new_var)
                 if(values[i]>cand_val):
                     cand_val=values[i]
                     cand_experiment=i
