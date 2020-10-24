@@ -121,92 +121,49 @@ The proof is based on a perturbation analysis of the LP in \eqref{eq:dm_opti_lin
 
 \subsection{Proposed Algorithm and Simulations}
 
-We propose an algorithm based on information-directed sampling and the literature on linear bandits, which adaptively chooses experimental subjects that will maximize information gain. Since our setting has an additional component which is the contamination cost due to externalities on other experiments, we use a knapsack-based heuristic $c-\mu$ rule.
+We propose an algorithm based on information-directed sampling and the literature on linear bandits, which adaptively chooses experimental subjects that will maximize information gain. Since our setting has an additional component which is the contamination cost due to externalities on other experiments, we use a knapsack-based heuristic $c-\mu$ rule. The full procedure that determines the path of experimentation is given in Algorithm \ref{cmu_sampling}.
 
 In simple terms, our algorithm chooses the most valuable nodes to experiment on greedily at every period, taking into account the cost of contaminating other nodes. We measure the information gain from experimenting on a given node by the change in the trace of the matrix $( X_s X_s^T)^{-1}$ after adding all the unexposed neighbors of the target node to the set of exposed nodes. We calculate the cost of experimenting on a node by calculating the number of new exposures resulting from treating the target node. We get the value of experimenting on a node by taking the ratio of the information gain to the cost, and determine the path of experimentation by sequentially choosing the nodes with the highest value until we reach our contamination budget, $\bar{C}$. Using this algorithm to determine which nodes to experiment on every period, the DM updates their estimate of the coefficient vector $\hat \Gamma$ after every experiment, solving the maximization problem in \eqref{eq:dm_opti_lin} in the last period to decide on a final treatment regime that will be deployed.
 
-We run simulation experiments to compare the performance of our proposed algorithm against the policy chosen by an oracle who knows the true response function. For each simulation, we draw an Erdos-Renyi random graph with 500 nodes and $p =0.1$, create our random covariate matrix $X_{5 \times 500}$ using draws from independent standard normal random variables, and generate our true coefficient vector $\Gamma$ drawing from a 5-dimensional normal distribution with mean zero and covariance matrix $I_5$. Our results show that the proposed algorithm performs reasonably well on medium-sized graphs, and the percentage gap to the oracle value falls below $20 \%$ when $\bar{C}$ approaches half of the graph size.
 
-\begin{figure}[!h]
-\begin{center}
-\includegraphics[scale=0.5]{simplot}
-\caption{Percentage gap to oracle value ($\frac{ V(\pi^*) - V(\hat \pi, \bar{C})}{V(\pi^*) }$), under different deployment and contamination budgets. N=500, and 100 simulations for every parameter combination.}
-\end{center}
-\end{figure}
-
-
-%\bpf
-
-%which characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP, $|| \Delta c|| $.
-
-Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then
-
-$$ R \leq K = \delta \frac{ \max \{ \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$
-
-where $|| \cdot ||$ refers to the 2-norm.
-
-$ || (\hat{\Gamma} - \Gamma)^T X || = \delta $
-
-
-% Hence, we obtain
-$$ R \leq  || \Delta c || \frac{ ||d ||  }{ dist(d, Pri\emptyset) } \frac{||b||}{dist(d, Dual\emptyset)- || \Delta c || }. $$
-
-First, we note that the norm of the LP instance $d$ is given by the expression:
-
-$$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} . $$
-
-Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. 
-
-\begin{lem}[\cite{pena2003characterization} Corollary 2.9]
-For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset)$, is equal to
-\begin{align*}
-\rho(d_P) = \sup \{ \epsilon : ||y|| \leq \epsilon \Rightarrow y \in \{ Ax: x \geq 0, ||x|| \leq 1 \}  \},
-\end{align*}
-where $d_P = (A, b)$.
-\end{lem}
-
-Hence, we compute the condition number of $A$ as the largest singular value of the matrix $A$. That is, we have
-\begin{align*}
-\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}.
-\end{align*}
-
-Similarly, we can show that the distance to the dual infeasible region is given by the largest singular value of the transpose of the coefficient matrix $A^T$, i.e., $\rho(d_D) = || A^T ||_2 =  \sigma_{max} (A^T) = \sigma_{max} (A) $.
-
-Finally, we use the observation that the perturbation to the coefficient vector is smaller than $\delta$. Therefore, we can conclude that regret is upper bounded by
-
-$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$.
-
-%\begin{algorithm}
-%    \caption{Contamination-aware sequential experimentation}
-%    \label{cmu_sampling}
-%    \begin{algorithmic}[] % The number tells where the line numbering should start
-%        \Procedure{Calculate value}{Target, X (Matrix), Treated Nodes (Set), Exposed Nodes (Set)} 
-%            \If{$ Target \in Treated Nodes$} \State \textbf{return} 0
-%            \Else
-%            \State $NewExposedNodes\gets Neighbors(Target) \cup ExposedNodes$
-%            \State $Cost \gets |Neighbors(Target) \setminus ExposedNodes|$
-%            \State $X_{E} \gets X[ExposedNodes]$
-%            \State $X_{N} \gets X[NewExposedNodes]$            
-%            \State $InformationGain \gets tr( (X_{E} X_{E} ^T) ^ {-1} ) - tr( (X_{N} X_{N} ^T) ^ {-1} )$
-%            \State $Value \gets InformationGain/Cost$
-%            \State \textbf{return} $Value$
-%            \EndIf
-%        \EndProcedure
-%        \\\hrulefill
-%        \Function{Sampling Path}{A (Matrix), $\bar{C}$ (Contamination Budget), X (Matrix)} 
-%            \State $Path \gets [ ]$
-%            \State $Cost \gets 0$
-%            \State $Treated Nodes \gets \emptyset$
-%            \State $Exposed Nodes \gets \emptyset$
-%            \While{$Cost < \bar{C}$}
-%                \State $a \gets b$
-%                \State $b \gets r$
-%                \State $r \gets a \bmod b$
-%            \EndWhile\label{euclidendwhile}
-%            \State \textbf{return} $b$
-%        \EndFunction
-%      \end{algorithmic}
-%\end{algorithm}
+\begin{algorithm}[!h] 
+    \caption{Contamination-aware sequential experimentation}
+    \label{cmu_sampling}
+    \begin{algorithmic}[] % The number tells where the line numbering should start
+        \Function{Calculate value}{Target (Integer), X (Matrix), Treated Nodes (Set), Exposed Nodes (Set), Current Cost (Integer), $\bar{C}$ (Integer)} 
+        \State $Cost \gets |Neighbors(Target) \setminus ExposedNodes|$
+            \If{$ (Target \in Treated Nodes)$ or $(Cost + Current Cost > \bar{C})$ } \State \textbf{return} 0
+            \Else
+            \State $NewExposedNodes\gets Neighbors(Target) \cup ExposedNodes$
+            \State $X_{E} \gets X[ExposedNodes]$
+            \State $X_{N} \gets X[NewExposedNodes]$            
+            \State $InformationGain \gets tr( (X_{E} X_{E} ^T) ^ {-1} ) - tr( (X_{N} X_{N} ^T) ^ {-1} )$
+            \State $Value \gets InformationGain/Cost$
+            \State \textbf{return} $Value$
+            \EndIf
+        \EndFunction
+        \\\hrulefill
+        \Function{Get Sampling Path}{A (Matrix), $\bar{C}$ (Integer), X (Matrix)} 
+            \State $Path \gets [~]$ (Vector)
+            \State $Curent Cost \gets 0$
+            \State $Treated Nodes \gets \emptyset$
+            \State $Exposed Nodes \gets \emptyset$
+            \While{$Curent Cost  < \bar{C}$}
+                \State $Best Node \gets ArgMax_{i \in \{1,\dots, N\}} Calculate Value(i, X, TreatedNodes, ExposedNodes,Curent Cost, \bar{C})$
+                \State $Optimal Value \gets Calculate Value(Best Node, X, TreatedNodes, ExposedNodes,Curent Cost, \bar{C})$
+                \If{$Optimal Value >0 $ } 
+                \State $Curent Cost \gets Curent Cost + |Neighbors(Best Node) \setminus ExposedNodes|$
+                \State $Treated Nodes \gets Treated Nodes \cup \{Best Node\}$
+                \State $Exposed Nodes \gets Exposed Nodes \cup Neighbors(Best Node)$
+                \State $Path \gets Append(Path, BestNode)$    
+                \Else
+                \State \textbf{break} 
+                \EndIf            
+            \EndWhile\label{euclidendwhile}
+            \State \textbf{return} $Path$
+        \EndFunction
+      \end{algorithmic}
+\end{algorithm}
 %\begin{algorithm}
 %    \caption{Calculate the value of experimenting on a node}
 %    \begin{algorithmic}[1] % The number tells where the line numbering should start
@@ -224,6 +181,70 @@ $$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \s
 %        \EndProcedure
 %    \end{algorithmic}
 %\end{algorithm}
+
+
+We run simulation experiments to compare the performance of our proposed algorithm against the policy chosen by an oracle who knows the true response function. For each simulation, we draw an Erdos-Renyi random graph with 100 nodes and different connectivity parameters $p \in \{ 0.025, 0.05, 0.1 \}$, and create our random covariate matrix $X_{10 \times 100}$ using draws from independent standard normal random variables, and generate our true coefficient vector $\Gamma$ drawing from a 10-dimensional normal distribution with mean zero and covariance matrix $I_{10}$. Our results show that the proposed algorithm performs reasonably well in this simulated setting, with performance improving in sparser graphs. In sparse graphs, since there is less contamination caused by experimenting on a given node, the algorithm can learn better before hitting the contamination cap, hence the average percentage gap to the oracle value falls below $5\%$ with a contamination budget $\bar C$ only a third of the graph size. In denser graphs, approaching the oracle value while limiting contamination becomes more difficult, and given a $\bar C$ half of the graph size, the average percentage gap to the oracle value is around $20\%$ on graphs with $p = 0.05$ and $80 \%$ for graphs with $p=0.1$. However, this problem is much less severe in large graphs, as can be seen from our simulations on random graphs with N=1000, $p=0.1$, and a 10-dimensional covariate vector $\Gamma$. In this setting, the average gap to oracle value is below $5 \%$, even with a $\bar C$ value one-eighth the graph size.
+
+The learning problem of the DM will likely be more difficult if we had homophily in the covariates of our nodes (i.e., the covariate vectors of neighboring nodes are correlated)
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[scale=0.45]{Network_Sim/n100_gridC_p0025_c10}
+\includegraphics[scale=0.45]{Network_Sim/n_100_gridC_p005_c10}
+\includegraphics[scale=0.45]{Network_Sim/n_100_gridC_p01_c10}
+\caption{Percentage gap to oracle value ($\frac{ V(\pi^*) - V(\hat \pi, \bar{C})}{V(\pi^*) }$), for a set of different contamination budgets in simulation studies on Erdos-Renyi random graphs with $p \in \{0.025,0.05,0.1\}$, and N=100, with a random 10-dimensional unknown parameter vector $\Gamma$. 1000 simulations were run for every parameter combination.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[scale=0.5]{Network_Sim/n1000_simresults_noerrors}
+\caption{Percentage gap to oracle value ($\frac{ V(\pi^*) - V(\hat \pi, \bar{C})}{V(\pi^*) }$), for a set of different contamination budgets in simulation studies on Erdos-Renyi random graphs with $p = 0.1$, and N=1000, with a random 10-dimensional unknown parameter vector $\Gamma$. 1000 simulations were run for every parameter combination.}
+\end{center}
+\end{figure}
+
+%
+%%\bpf
+%
+%%which characterize the change in the optimal objective function value as a function of the perturbation to the coefficient vector $c$ of the LP, $|| \Delta c|| $.
+%
+%Suppose $||c(\Gamma) - c(\hat{\Gamma})|| \leq \delta$, then
+%
+%$$ R \leq K = \delta \frac{ \max \{ \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$
+%
+%where $|| \cdot ||$ refers to the 2-norm.
+%
+%$ || (\hat{\Gamma} - \Gamma)^T X || = \delta $
+%
+%
+%% Hence, we obtain
+%$$ R \leq  || \Delta c || \frac{ ||d ||  }{ dist(d, Pri\emptyset) } \frac{||b||}{dist(d, Dual\emptyset)- || \Delta c || }. $$
+%
+%First, we note that the norm of the LP instance $d$ is given by the expression:
+%
+%$$||d ||  = \max \{ ||A || , ||b || , ||c ||  \} = \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} . $$
+%
+%Then, we refer to Corollary 2.9 of \cite{pena2003characterization} for an equivalent characterization of the distance to the primal infeasibility region in terms of the condition number of the coefficient matrix $A$ of the LP. 
+%
+%\begin{lem}[\cite{pena2003characterization} Corollary 2.9]
+%For any given $A$, the distance to primal infeasibility, $dist(d_P, Pri\emptyset)$, is equal to
+%\begin{align*}
+%\rho(d_P) = \sup \{ \epsilon : ||y|| \leq \epsilon \Rightarrow y \in \{ Ax: x \geq 0, ||x|| \leq 1 \}  \},
+%\end{align*}
+%where $d_P = (A, b)$.
+%\end{lem}
+%
+%Hence, we compute the condition number of $A$ as the largest singular value of the matrix $A$. That is, we have
+%\begin{align*}
+%\rho(d_P) = || A ||_2 = \sigma_{max} (A) = \sqrt{n+1}.
+%\end{align*}
+%
+%Similarly, we can show that the distance to the dual infeasible region is given by the largest singular value of the transpose of the coefficient matrix $A^T$, i.e., $\rho(d_D) = || A^T ||_2 =  \sigma_{max} (A^T) = \sigma_{max} (A) $.
+%
+%Finally, we use the observation that the perturbation to the coefficient vector is smaller than $\delta$. Therefore, we can conclude that regret is upper bounded by
+%
+%$$ K = \delta \frac{ \max \{ \sqrt{n+1}, \sqrt{n+D^2}, || \Gamma^T X || \} }{ \sqrt{n+1} } \frac{ \sqrt{n+D^2} }{\sqrt{n+1} - \delta } $$.
 
 %\bibliographystyle{plain}
 %\bibliography{references.bib}
