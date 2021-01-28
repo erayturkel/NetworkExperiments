@@ -18,11 +18,13 @@ Mine Su Erturk\\
 Graduate School of Business\\
 Stanford University\\
    \texttt{mserturk@stanford.edu} 
+\iffalse  
   \and
 Eray Turkel\\
 Graduate School of Business\\
 Stanford University\\
    \texttt{eturkel@stanford.edu} 
+   \fi
 }
 
 \date{}
@@ -34,83 +36,20 @@ In this project, we study the problem of designing an experimentation platform, 
 
 The goal is to follow a mechanism-design based approach to build an experimentation platform for multiple teams working on the same subjects. Through our analysis, we plan to develop insights to guide the design of experimentation platforms that will aim to internalize the externalities which experimenters impose on each other, hence aligning the incentives of each individual experimenter and the platform as a whole.
 
---motivate the network
+\subsection{Overview of the Model}
 
-When is the knowledge of the underlying interaction graph between experiments useful? Are there regimes in which graph-agnostic policies perform as well as their graph-aware counterparts? 
+Suppose the platform has multiple metrics they care about such as user retention, user growth, or ad revenue. We assume that the objective of the platform can be written as a linear combination of these metrics. The platform delegates experimentation to multiple teams with each team focusing on developing interventions that will affect a subset of these metrics. For example, one team might focus on increasing the average time spent on the platform whereas another team might design interventions to limit the spread of harmful content on the platform. 
 
---Further, studying the interaction between multiple experimenters over a network with and without a central scheduler remains as an interesting open question for our future work.
+The teams obtain positive payoff if and only if their proposed interventions are shipped (or implemented). Moreover, there is a possibility that a team's treatment interacts with the focal metrics of another team. We represent this interaction of interventions through a potentially unknown graph $G=(V,E)$. We assume that there is a node for each metric-team pair. In other words, we create ``virtual copies" of each metric for every team on the graph. There exists an edge between $(metric_i, team_j)$ and $(metric_k, team_l)$ if and only if the proposed interventions of team $j$ and $l$ interfere with each other. For simplicity, we will begin by assuming that a team's intervention can only interfere with another team through the same metric, i.e., edges can only exist between $(metric_i, team_j)$ and $(metric_i, team_l)$. 
 
-\section{Introduction-old}
+Shipment decisions are made according to a linear decision rule, $\bI(\beta Y \geq 0)$ where $Y_i$ is the change in metric $i$ and $\beta$ is the coefficient vector over metrics. In a decentralized setting, each team is allowed to choose their own $\beta$ vector which means that they can focus on different metrics to maximize their probability of getting shipped. Our goal as a platform is to design a system to restrict the choices of $\beta$ vectors such that the individual decisions of the teams are aligned with the overall objective of the platform. This implies that the optimal choice of the $\beta$ vectors might depend on the underlying interaction graph. Our main research questions are:
+\begin{enumerate}
+\item When is the knowledge of the underlying interaction graph between experiments useful? 
+\item Are there regimes in which graph-agnostic policies perform as well as their graph-aware counterparts? 
+\end{enumerate}
 
-We study the problem of a decision maker (DM) conducting experiments over time, on a network environment. An `experiment' in the context of our model is treating a node in the network. Each node responds to the treatment differently, depending on their (observable) characteristics. We also assume that treating a node creates spillovers on neighboring nodes. The DM's goal is learning the optimal treatment allocation over the network by sequentially conducting local experiments on different nodes. 
-
-We assume that there are multiple analysts conducting experiments on the network, as is the case in many online platforms. The DM's experiment creates negative externalities on other ongoing experiments, or the deployed treatments from previously run experiments. We model this as a cost for contaminating the treatment regime of other experimenters. Therefore, the DM has to strike a balance between learning the treatment response function efficiently, and staying within acceptable levels of contamination. We analyze the DM's problem as a sequential decision making problem, which puts our framework closer to the literature on online learning and bandits, instead of using a randomization based inference setting, as is common in the network experimentation literature.
-
-\section{Model-old}
-
-There are N units connected on an undirected, unweighted graph. Denote each unit on the graph by $i \in \{1, \dots, N \}$. The units have observable characteristics, $\{x_1 , \dots, x_N \}$ with $x_i \in \mathbb{R}^k$. The DM's objective depends on the outcomes of the units, denoted $\{Y_1 , \dots, Y_N\}$ with $Y \in \mathbb{R}$, which respond to a treatment regime that will be determined. The decision maker can run experiments sequentially, at time periods $t \in \{1, \dots , T\}$. Let $w_{it}$ denote the treatment assignment for node $i$ during the period of experimentation $t$, with $w_{it} \in \{0,1\}$, and denote the vector of treatment assignments at time $t$ by $w_t = [w_{1t}, \dots , w_{Nt}] \in \{0,1\}^N$. We assume that the experimentation is local, in the sense that every period, only one node can be treated. Thus for all time periods $t$, $\sum_{i \leq N} w_{it} = 1$.
-
-Each node's outcome depends on their characteristics, the treatment they receive and the exposure to the treatment through their neighbors. Define the exposure for node $i$ at period $t$ as $e_{it}$, which is assumed to be: 
-$$e_{it} = \frac { \sum_{j \leq N}  \mathbf{1}(j \in nhbd(i)) w_{jt}}{ \sum_{j \leq N} \mathbf{1}(j \in nhbd(i)) }$$
-
-$Y$ is assumed to be a linear function of the unit characteristics and the exposure to the treatment:
-
-$$Y_{it}( w_{it}, e_{it}) = \beta^T x_i + \Gamma^T x_i e_{it} + \epsilon_i,$$
-
-where $\beta, \Gamma \in \mathbb{R}^k$, and for all nodes $i$, $\epsilon_i \sim N(0, \sigma^2_\epsilon)$.
-
- The DM's goal is to choose a treatment assignment policy over the network based on the value of $\Gamma$. Denote the final treatment assignment for node $i$ by $w_i$, dropping the time subscript. We denote a policy by $\pi(\Gamma)$, where $\pi(\Gamma)=[w_1, \dots , w_N] \in \{0,1\}^N$. We assume that there is an upper limit on the number of nodes that can be treated in the final deployment, which we call $D$, i.e., $\sum_{i \leq N} w_i \leq D$. 
-
-At every period $t$, the DM's experimentation creates a cost, because the experiment interacts with a previous experimenter's treatment allocation, contaminating their results. We assume that the cost is proportional to the number of units exposed to the treatment, and once a unit is exposed, future exposures of that unit do not increase the cost any further. Define the total cost of experimentation at period $t$ by:
-
-$$c_t = c \sum_{i \leq N} \mathbf{1}\left( e_{it} > 0 \mbox{ and } e_{is}=0,  \forall s<t \right) .$$
-
-Throughout, we will let $c=1$ for simplicity. Hence, the total cost incurred through experimentation by the DM can be written as   $C= \sum_{t \leq T} c_t  .$ We assume that the DM has to stay below a `contamination budget' of at most $\bar{C}$ during experimentation. Then, as a function of the contamination budget $\bar{C}$, we define the value of a policy as follows:
-
-$$V(\pi, \bar{C})=\sum_{i \leq N} \Gamma^T x_i e_i(\pi), $$
-
-where $e_i(\pi)$ denotes the exposure function determined at the last period for final deployment, induced by the treatment allocation under policy $\pi$, decided after an experimentation period with the contamination budget $\bar{C}$. The DM does not observe the true vector $\Gamma$ but has an imperfect estimate of it learned through sequential experimentation, which we will call $\hat \Gamma$. The DM maximizes the empirical value function using its estimate at the end of the experimentation period:
-
-\begin{align}\label{eq:dm_opti}
-Max_{\hat \pi} : \sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi)  \quad \mbox{s.t. } 1^T \hat \pi \leq D .
-\end{align}
-
-\iffalse
-This ends up being equivalent to this minimization (the equivalence to be clarified later):
-%
-
-$$ Min_{\hat \pi} E \left( Sup_\pi \left(\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty(\pi) \right) - \sum_{i \leq N} \hat \Gamma^T x_i e_i(\hat \pi) + c_\infty(\hat \pi) \right) $$
-%
-OR (depending on how $\hat \Gamma \rightarrow \Gamma$).
-
-$$ Min_{\pi} E \left( Sup_\pi \left(\sum_{i \leq N} \Gamma^T x_i e_i(\pi) - c_\infty \right) - \sum_{i \leq N}  \Gamma^T x_i e_i(\pi) + \hat c_\infty \right) $$
-\fi
-
-Let $X_{K \times N}$ denote the matrix of covariates for all the nodes on the graph, and let $X_s$ denote the analogous matrix only for nodes that were exposed to the treatment during the experimentation period. Let $\hat \Gamma _{1 \times K}$ be the vector of estimated coefficients.
-
-Define the vector of exposure values at time t as $\bar e_t=[\mathbf{1}(e_{1t}>0), \dots, \mathbf{1}(e_{Nt}>0)]_{1 \times N}$ and let $c_t$ denote the cost vector at time t.  We can recursively write: $c_0 = 0_{1 \times N}, c_1 = \bar e_1$, and generally, $c_n = (c_{n-1} + \bar e_n) - (Diag(c_{n-1})  \bar e_n) $. $Diag(c_n)$ denotes the diagonal matrix with the entries of $c_n$ on its diagonal entries. This recursive formulation captures the notion that the cost of second and future exposures to the experiment are zero.
-
-We can also define the final exposure vector $e$ in terms of the adjacency matrix of the network, $A_{N \times N}$ (with self-edges), and the final treatment allocation vector $\pi \in \{0,1\}^N$. Representing $e$ as a vector, we have: $Diag(A \mathbf{1}_{N} ) ^{-1} A\pi  = e$, where $\mathbf{1}_{N}$ is an $(N \times 1)$ vector of 1's. Therefore, we can rewrite the maximization problem \eqref{eq:dm_opti} as a convenient linear program, where we relax $\pi_i$ and allow it to take values in $[0,1]$, interpreting the resulting policy as a probabilistic treatment assignment rule:
-
-\begin{align}\label{eq:dm_opti_lin}
-Max_{\hat \pi}: \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  \textit{, subject to: } 1^T \hat \pi \leq D , \forall i, \hat \pi_i \in [0,1].
-\end{align}
-
-
-%$$Max_{\hat \pi}: E \left( \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  -  c_\infty(\hat \pi) \right)$$
-
-\iffalse
-or, we can write: %here y captures the cost structure using a linear formulation
-
-$$Max_{\hat \pi, y_i}: E \left( \left(\hat \Gamma^T X Diag(A \mathbf{1}_{N} ) ^{-1} A \right) \hat \pi  - \sum_{i \leq N} y_i \right)$$ subject to: 
-
-$$\forall i,  \left( Diag(A \mathbf{1}_{N} ) ^{-1} A \hat \pi \right)_i \leq y_i$$
-
-$$\forall i, y_i, \hat \pi_i \in \{0,1\} $$
-\fi
+\end{document}
 
 
 %\bibliographystyle{plain}
 %\bibliography{references.bib}
-
-\end{document}
