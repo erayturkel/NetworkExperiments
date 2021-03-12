@@ -1,4 +1,6 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper,margin=1in}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -10,7 +12,6 @@
 
 \usepackage{../macros/minesu_macro}
 
-\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 \title{ Decentralized Experimentation under Interference }
 
 \author{
@@ -32,21 +33,49 @@ Stanford University\\
 \maketitle
 
 \section{Introduction}
-In this project, we study the problem of designing an experimentation platform, while taking into account possible contamination between experimenters. In reality, many teams operate on the same subject pool, each of them testing their own treatments and possibly interested in different outcome metrics. However, the objective of the platform is finding the best combination of these treatments, rather than making independent ship/no-ship decisions on each experiment individually. This creates a tension between the incentives of the platform and individual experimenters. While each group might make statistically sound decisions on whether to ship their experiment in isolation, the best combination of all the treatments, which is what the platform is interested in, might be missed.
+In this project, we study the problem of designing an experimentation platform, while taking into account possible contamination between experimenters. In reality, many teams operate on the same subject pool, each of them testing their own treatments and possibly interested in different outcome metrics. However, the objective of the platform is finding the best combination of these treatments, rather than making independent decisions on each experiment individually. This creates a tension between the incentives of the platform and individual experimenters. While each group might make statistically sound decisions on based on the outcome of their experiment in isolation, the best combination of all the treatments, which is what the platform is interested in, might be missed. In short, the decentralized nature of experimentation in a large company could result in an inefficient allocation of subjects to experiments which in turn could lead to inefficient decision-making at the company level.
 
-The goal is to follow a mechanism-design based approach to build an experimentation platform for multiple teams working on the same subjects. Through our analysis, we plan to develop insights to guide the design of experimentation platforms that will aim to internalize the externalities which experimenters impose on each other, hence aligning the incentives of each individual experimenter and the platform as a whole.
+The goal of this project is to develop an initial model of decentralized experimentation in a large company. More specifically, we would like to study the extent of ``contamination" across experiments and its effect on overall outcomes at the company level. Building on this project, we plan to develop insights to guide the design of experimentation platforms that will aim to internalize the externalities that experimenters impose on each other, hence aligning the incentives of each individual experimenter and the platform as a whole.
 
-\subsection{Overview of the Model}
+\section{Model}
+Consider a firm with $\abs T \abs$ teams experimenting on subjects chosen from $\abs S \abs$ distinct subject pools. We assume that the total mass of subjects is $1$ and $\alpha_j$ denotes the mass of subjects in subject pool $j$. The subject pools represent different geographical regions or demographic groups. A bipartite graph $G=(T,S,E)$ denotes the subject pools every team has access to and we write $A$ to represent its adjacency matrix. Let $S_i$ denote the set of subject pools that team $i$ can recruit from, i.e., $S_i = \{ j \in S: (i,j) \in E \} $. Conversely, let $T_j$ denote the set of teams that can experiment on subject pool $j$, i.e., $T_j = \{ i \in T: (i,j) \in E \} $.
 
-Suppose the platform has multiple metrics they care about such as user retention, user growth, or ad revenue. We assume that the objective of the platform can be written as a linear combination of these metrics. The platform delegates experimentation to multiple teams with each team focusing on developing interventions that will affect a subset of these metrics. For example, one team might focus on increasing the average time spent on the platform whereas another team might design interventions to limit the spread of harmful content on the platform. 
+Teams choose where to recruit their subjects from to maximize the statistical power of their experiments. Let $n_i$ be the total mass of subjects recruited by team $i$, that is we let $n_i = \sum_{j \in S_i} \alpha_j n_{ij}$ where $n_{ij}$ is the fraction of subjects chosen by team $i$ from subject pool $j$. Further, we let $\sigma_i$ denote the standard error of the outcome tracked by team $i$. We assume that $\sigma_i$ increases when other teams are experimenting on the same subjects as team $i$. In other words, experiments of other teams create additional noise within the experiment of team $i$, making it more difficult to detect true effects. We assume that $\sigma_i$ is given by the following expression:
+\begin{align}
+\sigma_i = \sum_{j \in S_i} n_{ij} \sum_{k \in T_j} n_{kj}.
+\end{align}
 
-The teams obtain positive payoff if and only if their proposed interventions are shipped (or implemented). Moreover, there is a possibility that a team's treatment interacts with the focal metrics of another team. We represent this interaction of interventions through a potentially unknown graph $G=(V,E)$. We assume that there is a node for each metric-team pair. In other words, we create ``virtual copies" of each metric for every team on the graph. There exists an edge between $(metric_i, team_j)$ and $(metric_k, team_l)$ if and only if the proposed interventions of team $j$ and $l$ interfere with each other. For simplicity, we will begin by assuming that a team's intervention can only interfere with another team through the same metric, i.e., edges can only exist between $(metric_i, team_j)$ and $(metric_i, team_l)$. 
+In general, we write the utility of team $i$ as
+\begin{align}
+U_i = f \lt( n_i , \sigma_i \rt),
+\end{align}
+where $f(\cdot)$ is a function increasing in $n_i$ and decreasing in $\sigma_i$, e.g., $U_i = \frac{\sqrt{n_i}}{\sigma_i}$.
 
-Shipment decisions are made according to a linear decision rule, $\bI(\beta Y \geq 0)$ where $Y_i$ is the change in metric $i$ and $\beta$ is the coefficient vector over metrics. In a decentralized setting, each team is allowed to choose their own $\beta$ vector which means that they can focus on different metrics to maximize their probability of getting shipped. Our goal as a platform is to design a system to restrict the choices of $\beta$ vectors such that the individual decisions of the teams are aligned with the overall objective of the platform. This implies that the optimal choice of the $\beta$ vectors might depend on the underlying interaction graph. Our main research questions are:
-\begin{enumerate}
-\item When is the knowledge of the underlying interaction graph between experiments useful? 
-\item Are there regimes in which graph-agnostic policies perform as well as their graph-aware counterparts? 
-\end{enumerate}
+\section{Preliminary Analysis}
+For the preliminary analysis, we let $U_i = n_i - \beta \sigma_i$. This utility function allows us to immediately characterize the equilibrium outcomes using Theorem 1 in Bimpikis, Ehsani and Ilkilic (2019). More specifically, we have
+\begin{align}
+U_i & =  \sum_{j \in S_i} \alpha_j n_{ij} - \beta \sum_{j \in S_i} n_{ij} \sum_{k \in T_j} n_{kj} \nln
+& =  \sum_{j \in S_i} n_{ij} \lt( \alpha_j - \beta \sum_{k \in T_j} n_{kj} \rt).
+\end{align}
+Then, letting $W$ be the $|E| \times |E|$ matrix with entries
+\begin{align}
+W_{ij,kl} = & \begin{cases}
+\beta \quad \mbox{ if } i \neq j, k = l \nln
+0 \quad \mbox{ otherwise,}
+\end{cases}
+\end{align}
+we obtain that
+\begin{align}
+\mathbf{n}^* = \lt[ I + \frac{1}{2\beta} W \rt]^{-1} \frac{1}{2\beta} {\alpha}.
+\end{align}
+Overall, we can interpret the dynamics induced by decentralized experimentation as a competition over subjects. This perspective on the design of experiments could be complementary to the existing literature on experimentation. As a very brief summary, the literature on experimentation under interference has mostly focused on developing (cluster) randomization schemes to allow the estimation of direct and indirect treatment effects (cf.~Aronow et al. (2017), Eckles et al. (2017), Ugander et al. (2013)). However, to the best of our knowledge, there has not been extensive work on the decentralized version of this problem where the experimenters could potentially be strategic. Hence, understanding the limitations of decentralized systems in experimentation, specifically in terms of the ``loss of optimality" in subsequent decisions caused by inefficient learning/experimentation would be interesting. %Ozdaglar-decentralized optimization
+
+\section{Future Work}
+There are a couple of interesting directions to build on this initial model. First, extending the preliminary analysis to a more ``realistic" model in the context of experimentation would be ideal. We could then ask whether the impact of network topology would be different in nature compared to existing models of competition in markets, because of contamination. That is, when we look at experimentation as an intermediate step in a decision-making problem, would the network play a different role?
+
+Second, we could study whether we can develop a pricing scheme that would help the experimenters internalize the externalities they impose on each other. One can imagine introducing a virtual currency of experimentation and allocating budgets to different experimentation teams. Alternatively, this approach could be compared to simply partitioning the subject pool into non-overlapping sub-pools and assigning one such subset to each team. 
+
+Finally, thinking about the design of decentralized experimentation platforms would be an interesting direction. What types of levers could be used in such platforms? Overall, the information discovery (or extraction) problem that we observe in experimentation could potentially lead to interesting trade-offs in platform design.
 
 \end{document}
 
